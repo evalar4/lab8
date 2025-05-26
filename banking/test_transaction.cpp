@@ -65,9 +65,15 @@ TEST(TransactionTest, MakeFeeTooHigh) {
     EXPECT_FALSE(result);
 }
 
+class TestableTransaction : public Transaction {
+public:
+    using Transaction::Credit;
+    using Transaction::Debit;
+};
+
 TEST(TransactionTest, DebitSuccess) {
     MockAccount acc(1, 100);
-    Transaction tr;
+    TestableTransaction tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
     bool result = tr.Debit(acc, 50);
@@ -76,7 +82,7 @@ TEST(TransactionTest, DebitSuccess) {
 
 TEST(TransactionTest, DebitFail) {
     MockAccount acc(1, 100);
-    Transaction tr;
+    TestableTransaction tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
     bool result = tr.Debit(acc, 150);
@@ -85,7 +91,7 @@ TEST(TransactionTest, DebitFail) {
 
 TEST(TransactionTest, Credit) {
     MockAccount acc(1, 100);
-    Transaction tr;
+    TestableTransaction tr;
     
     EXPECT_NO_THROW(tr.Credit(acc, 50));
 }
