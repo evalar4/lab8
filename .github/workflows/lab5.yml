@@ -5,6 +5,10 @@ on: [push]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./banking
+
     steps:
       - uses: actions/checkout@v4
       
