@@ -35,16 +35,19 @@ target_link_libraries(banking_tests
 # Добавление тестов
 add_test(NAME banking_tests COMMAND banking_tests)
 
-# Покрытие кода
+# Покрытие кода (только если включен режим Coverage)
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    find_package(gcov REQUIRED)
-    find_package(lcov REQUIRED)
-
+    # Включаем флаги покрытия кода (это автоматически включает gcov-инструментацию)
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+    
+    # Цель для генерации отчета через lcov
     add_custom_target(coverage
         COMMAND lcov --capture --directory . --output-file coverage.info
         COMMAND lcov --remove coverage.info '/usr/*' --output-file coverage.info
         COMMAND genhtml coverage.info --output-directory coverage_report
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating code coverage report"
     )
 endif()
 
