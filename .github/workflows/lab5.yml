@@ -12,18 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
           
+      
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake libgtest-dev libgmock-dev
-          cd /usr/src/gtest
-          sudo cmake CMakeLists.txt
-          sudo make
-          sudo cp *.a /usr/lib
-          cd /usr/src/gmock
-          sudo cmake CMakeLists.txt
-          sudo make
-          sudo cp *.a /usr/lib
+
 
 
           

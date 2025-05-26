@@ -19,6 +19,7 @@ target_include_directories(banking PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Google Test
 find_package(GTest REQUIRED)
+find_package(GMock REQUIRED)
 
 # Модульные тесты
 add_executable(banking_tests
