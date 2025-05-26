@@ -1,0 +1,46 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Google Test
+        uses: Bacondish2023/setup-googletest@v1.0.1
+        with:
+          version: 1.17.0
+          
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake lcov
+          
+      - name: Configure and build
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Coverage -DENABLE_COVERAGE=ON ..
+          make -j2
+          
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+          
+      - name: Generate coverage
+        if: success()
+        run: |
+          cd build
+          lcov --capture --directory . --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          genhtml coverage.info --output-directory coverage
+          
+      - name: Upload coverage
+        if: success()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: coverage-report
+          path: build/coverage
+
