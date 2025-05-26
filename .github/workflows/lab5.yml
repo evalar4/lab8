@@ -11,16 +11,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Google Test
-        uses: Bacondish2023/setup-googletest@v1.0.1
-        with:
-          version: 1.17.0
           
-      - name: Install build tools
+      - name: Install dependencies
         run: |
-          sudo apt-get update 
-          sudo apt-get install -y build-essential cmake lcov gcc g++
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake libgtest-dev libgmock-dev
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp *.a /usr/lib
+          cd /usr/src/gmock
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp *.a /usr/lib
+
 
           
       - name: Configure and build
