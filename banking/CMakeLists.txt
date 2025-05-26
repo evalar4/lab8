@@ -29,6 +29,7 @@ add_executable(banking_tests
 target_link_libraries(banking_tests
     banking
     GTest::GTest
+    GMock::GMock
     GTest::Main
 )
 
