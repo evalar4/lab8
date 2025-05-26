@@ -18,8 +18,15 @@ add_library(banking
 target_include_directories(banking PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Google Test
-find_package(GTest REQUIRED)
-find_package(GMock REQUIRED)
+# Настройка FetchContent для загрузки googletest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.17.0  # Используем стабильную версию
+)
+FetchContent_MakeAvailable(googletest)
+
 
 # Модульные тесты
 add_executable(banking_tests
@@ -29,9 +36,9 @@ add_executable(banking_tests
 
 target_link_libraries(banking_tests
     banking
-    GTest::GTest
-    GMock::GMock
-    GTest::Main
+    gtest
+    gmock
+    gtest_main
 )
 
 # Добавление тестов
