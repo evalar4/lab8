@@ -24,21 +24,16 @@ TEST(TransactionTest, MakeSuccess) {
     Transaction tr;
     tr.set_fee(10);
 
-    // Locking sequence
-    ::testing::InSequence seq;
-    EXPECT_CALL(from, Lock()).Times(1);
-    EXPECT_CALL(to, Lock()).Times(1);
-
-    // Balance check (only from account needs to be checked)
-    EXPECT_CALL(from, GetBalance()).WillOnce(::testing::Return(200));
-
-    // Balance changes
-    EXPECT_CALL(from, ChangeBalance(-110)).Times(1);  // amount + fee
-    EXPECT_CALL(to, ChangeBalance(100)).Times(1);
-
-    // Unlocking sequence (reverse order)
-    EXPECT_CALL(to, Unlock()).Times(1);
-    EXPECT_CALL(from, Unlock()).Times(1);
+    {
+        ::testing::InSequence seq;
+        EXPECT_CALL(from, Lock());
+        EXPECT_CALL(to, Lock());
+        EXPECT_CALL(from, GetBalance()).WillOnce(Return(200));
+        EXPECT_CALL(from, ChangeBalance(-110));
+        EXPECT_CALL(to, ChangeBalance(100));
+        EXPECT_CALL(to, Unlock());
+        EXPECT_CALL(from, Unlock());
+    }
 
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
