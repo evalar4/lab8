@@ -31,18 +31,20 @@ bool Transaction::Make(Account& from, Account& to, int sum) {
   Guard guard_from(from);
   Guard guard_to(to);
 
-  // First try to debit from source account
-  bool success = Debit(from, sum + fee_);
-  if (!success) {
+  // Check balance first (only once)
+  if (from.GetBalance() < sum + fee_) {
     return false;
   }
 
-  // If debit succeeded, credit to destination account
-  Credit(to, sum);
+  // Perform the transaction
+  from.ChangeBalance(-(sum + fee_));
+  to.ChangeBalance(sum);
 
   SaveToDataBase(from, to, sum);
   return true;
 }
+
+
 
 
 void Transaction::Credit(Account& accout, int sum) {
