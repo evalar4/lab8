@@ -1,4 +1,3 @@
-<CMakeLists.txt>
 cmake_minimum_required(VERSION 3.10)
 project(banking)
 
@@ -14,6 +13,7 @@ add_library(banking
 
 target_include_directories(banking PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Google Test
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -38,8 +38,7 @@ add_test(NAME banking_tests COMMAND banking_tests)
 
 option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 if(ENABLE_COVERAGE)
-    message(STATUS "Enabling coverage")
-    add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-    add_link_options(--coverage)
+    message(STATUS "Enabling code coverage")
+    add_compile_options(-fprofile-arcs -ftest-coverage)
+    add_link_options(-fprofile-arcs -lgcov)
 endif()
-</CMakeLists.txt>
