@@ -1,6 +1,5 @@
-<test_transaction.cpp>
-#include "Transaction.h"
 #include "Account.h"
+#include "Transaction.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -22,7 +21,7 @@ public:
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    Transaction tr;
+    MockTransaction tr;
     tr.set_fee(10);
 
     {
@@ -32,6 +31,7 @@ TEST(TransactionTest, MakeSuccess) {
         EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
+        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }
@@ -103,4 +103,3 @@ TEST(TransactionTest, Credit) {
     EXPECT_CALL(acc, ChangeBalance(50)).Times(1);
     tr.Credit(acc, 50);
 }
-</test_transaction.cpp>

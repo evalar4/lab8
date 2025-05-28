@@ -1,6 +1,6 @@
 #pragma once
 
-class Account;
+class Account;  // Forward declaration
 
 class Transaction {
  public:
@@ -15,7 +15,6 @@ class Transaction {
   void Credit(Account& accout, int sum);
   bool Debit(Account& accout, int sum);
 
-  // Virtual to test.
   virtual void SaveToDataBase(Account& from, Account& to, int sum);
 
   int fee_;
