@@ -16,16 +16,27 @@ public:
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    Transaction tr;
+    MockTransaction tr;
     tr.set_fee(10);
 
     {
         ::testing::InSequence seq;
         EXPECT_CALL(from, Lock());
         EXPECT_CALL(to, Lock());
-        EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
+        EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200)); // Проверка баланса перед переводом
+        
+        // Ожидаем изменения балансов
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
+        
+        // Ожидаем вызов SaveToDataBase и последующие вызовы GetBalance внутри него
+        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100))
+            .WillOnce(testing::Invoke([&](Account&, Account&, int) {
+                // Внутри SaveToDataBase происходят вызовы GetBalance()
+                EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90));
+                EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));
+            }));
+        
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }
@@ -33,7 +44,6 @@ TEST(TransactionTest, MakeSuccess) {
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
 }
-
 // Остальные тесты остаются без изменений...
 
 TEST(TransactionTest, MakeInvalidSameAccount) {
