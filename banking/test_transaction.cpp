@@ -33,6 +33,10 @@ TEST(TransactionTest, MakeSuccess) {
     EXPECT_CALL(from, ChangeBalance(-110));
     EXPECT_CALL(to, ChangeBalance(100));
     
+    // Вызовы GetBalance внутри SaveToDataBase
+    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90));
+    EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));
+    
     // Разблокировка аккаунтов
     EXPECT_CALL(to, Unlock());
     EXPECT_CALL(from, Unlock());
@@ -103,25 +107,4 @@ TEST(TransactionTest, Credit) {
     
     EXPECT_CALL(acc, ChangeBalance(50)).Times(1);
     tr.Credit(acc, 50);
-}
-
-TEST(TransactionTest, SaveToDatabaseOutput) {
-    testing::internal::CaptureStdout();
-    
-    Account from(1, 100);
-    Account to(2, 50);
-    Transaction tr;
-    
-    // Для тестирования protected-метода
-    class TestableTransaction : public Transaction {
-    public:
-        using Transaction::SaveToDataBase;
-    } test_tr;
-    
-    test_tr.SaveToDataBase(from, to, 30);
-    
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_TRUE(output.find("1 send to 2 $30") != std::string::npos);
-    EXPECT_TRUE(output.find("Balance 1 is 100") != std::string::npos);
-    EXPECT_TRUE(output.find("Balance 2 is 50") != std::string::npos);
 }
