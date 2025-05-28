@@ -42,6 +42,10 @@ add_test(NAME banking_tests COMMAND banking_tests)
 option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
 if(ENABLE_COVERAGE)
     message(STATUS "Enabling code coverage")
+    # Добавляем флаги для всех целей
     add_compile_options(-fprofile-arcs -ftest-coverage)
     add_link_options(-fprofile-arcs -lgcov)
+    
+    # Устанавливаем правильные пути для .gcda файлов
+    add_compile_options(-fprofile-dir=$(CMAKE_CURRENT_BINARY_DIR))
 endif()

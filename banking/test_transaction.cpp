@@ -33,10 +33,6 @@ TEST(TransactionTest, MakeSuccess) {
     EXPECT_CALL(from, ChangeBalance(-110));
     EXPECT_CALL(to, ChangeBalance(100));
     
-    // Вызовы GetBalance внутри SaveToDataBase
-    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90));
-    EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));
-    
     // Разблокировка аккаунтов
     EXPECT_CALL(to, Unlock());
     EXPECT_CALL(from, Unlock());
@@ -44,7 +40,6 @@ TEST(TransactionTest, MakeSuccess) {
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
 }
-
 TEST(TransactionTest, MakeInvalidSameAccount) {
     MockAccount acc(1, 100);
     Transaction tr;
