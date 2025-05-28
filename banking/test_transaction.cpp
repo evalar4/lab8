@@ -18,6 +18,12 @@ public:
     MOCK_METHOD(void, SaveToDataBase, (Account& from, Account& to, int sum), (override));
 };
 
+// Класс для доступа к protected-методам
+class TestableTransaction : public Transaction {
+public:
+    using Transaction::SaveToDataBase;
+};
+
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
@@ -46,9 +52,10 @@ TEST(TransactionTest, MakeSuccess) {
             EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90));
             EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));
             
-            // Вызываем реальную реализацию SaveToDataBase
-            static_cast<Transaction&>(tr).SaveToDataBase(from_acc, to_acc, sum);
-        });
+            // Вызываем реальную реализацию SaveToDataBase через тестовый класс
+            TestableTransaction test_tr;
+            test_tr.SaveToDataBase(from_acc, to_acc, sum);
+        }));
     
     // Разблокировка аккаунтов
     EXPECT_CALL(to, Unlock());
@@ -88,7 +95,7 @@ TEST(TransactionTest, MakeFeeTooHigh) {
     EXPECT_FALSE(result);
 }
 
-class TestableTransaction : public Transaction {
+class TestableTransactionForDebit : public Transaction {
 public:
     using Transaction::Credit;
     using Transaction::Debit;
@@ -96,7 +103,7 @@ public:
 
 TEST(TransactionTest, DebitSuccess) {
     MockAccount acc(1, 100);
-    TestableTransaction tr;
+    TestableTransactionForDebit tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
     EXPECT_CALL(acc, ChangeBalance(-50)).Times(1);
@@ -106,7 +113,7 @@ TEST(TransactionTest, DebitSuccess) {
 
 TEST(TransactionTest, DebitFail) {
     MockAccount acc(1, 100);
-    TestableTransaction tr;
+    TestableTransactionForDebit tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
     EXPECT_CALL(acc, ChangeBalance(testing::_)).Times(0);
@@ -116,7 +123,7 @@ TEST(TransactionTest, DebitFail) {
 
 TEST(TransactionTest, Credit) {
     MockAccount acc(1, 100);
-    TestableTransaction tr;
+    TestableTransactionForDebit tr;
     
     EXPECT_CALL(acc, ChangeBalance(50)).Times(1);
     tr.Credit(acc, 50);
