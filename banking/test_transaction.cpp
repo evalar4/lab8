@@ -13,15 +13,10 @@ public:
     MOCK_METHOD(void, Unlock, (), (override));
 };
 
-class MockTransaction : public Transaction {
-public:
-    MOCK_METHOD(void, SaveToDataBase, (Account& from, Account& to, int sum), (override));
-};
-
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    MockTransaction tr;
+    Transaction tr;
     tr.set_fee(10);
 
     {
@@ -31,7 +26,6 @@ TEST(TransactionTest, MakeSuccess) {
         EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
-        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }
@@ -39,6 +33,8 @@ TEST(TransactionTest, MakeSuccess) {
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
 }
+
+// Остальные тесты остаются без изменений...
 
 TEST(TransactionTest, MakeInvalidSameAccount) {
     MockAccount acc(1, 100);

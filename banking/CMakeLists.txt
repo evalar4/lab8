@@ -4,8 +4,8 @@ project(banking)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Отключаем превращение предупреждений в ошибки
-add_compile_options(-Wno-error)
+# Для Ubuntu 22.04+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error")
 
 enable_testing()
 
@@ -24,14 +24,6 @@ FetchContent_Declare(
   GIT_TAG release-1.12.1
 )
 FetchContent_MakeAvailable(googletest)
-
-# Для googletest отключаем дополнительные флаги ошибок
-if(googletest_POPULATED)
-    set_target_properties(gtest PROPERTIES COMPILE_FLAGS "-w")
-    set_target_properties(gtest_main PROPERTIES COMPILE_FLAGS "-w")
-    set_target_properties(gmock PROPERTIES COMPILE_FLAGS "-w")
-    set_target_properties(gmock_main PROPERTIES COMPILE_FLAGS "-w")
-endif()
 
 add_executable(banking_tests
     test_account.cpp

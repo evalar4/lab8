@@ -4,25 +4,27 @@ on: [push]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake
+          sudo apt-get install -y build-essential cmake lcov g++-11
+          sudo apt-get install -y libgtest-dev libgmock-dev
           
       - name: Build and test
         run: |
+          cd banking
           mkdir build
           cd build
-          cmake ../banking
+          cmake ..
           make
           ctest --output-on-failure
 
   coverage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: build-and-test
     steps:
       - uses: actions/checkout@v4
@@ -30,19 +32,24 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake lcov
+          sudo apt-get install -y build-essential cmake lcov g++-11
+          sudo apt-get install -y libgtest-dev libgmock-dev
           
       - name: Build with coverage
         run: |
+          cd banking
           mkdir coverage-build
           cd coverage-build
-          cmake -DENABLE_COVERAGE=ON ../banking
+          cmake .. -DENABLE_COVERAGE=ON
           make
           
-      - name: Generate coverage
+      - name: Run tests and generate coverage
         run: |
-          cd coverage-build
-          ctest --output-on-failure
+          cd banking/coverage-build
+          # Запускаем тесты и собираем данные покрытия
+          ./banking_tests
+          
+          # Собираем отчет
           lcov --capture --directory . --output-file coverage.info
           lcov --remove coverage.info '/usr/*' --output-file coverage.info
           genhtml coverage.info --output-directory coverage
@@ -51,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage-build/coverage
+          path: banking/coverage-build/coverage
