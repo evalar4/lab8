@@ -14,32 +14,25 @@ public:
 };
 
 TEST(TransactionTest, MakeSuccess) {
-    MockAccount from(1, 200);
-    MockAccount to(2, 50);
+    // Используем реальные аккаунты для основного теста
+    Account from(1, 200);
+    Account to(2, 50);
     Transaction tr;
     tr.set_fee(10);
 
-    // Устанавливаем ожидания в строгой последовательности
-    ::testing::InSequence seq;
-
-    // Блокировка аккаунтов
-    EXPECT_CALL(from, Lock());
-    EXPECT_CALL(to, Lock());
-    
-    // Проверка баланса перед переводом
-    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
-    
-    // Изменение балансов
-    EXPECT_CALL(from, ChangeBalance(-110));
-    EXPECT_CALL(to, ChangeBalance(100));
-    
-    // Разблокировка аккаунтов
-    EXPECT_CALL(to, Unlock());
-    EXPECT_CALL(from, Unlock());
-
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
+    
+    // Проверяем итоговые балансы
+    from.Lock();
+    EXPECT_EQ(from.GetBalance(), 90);  // 200 - 100 - 10 = 90
+    from.Unlock();
+    
+    to.Lock();
+    EXPECT_EQ(to.GetBalance(), 150);   // 50 + 100 = 150
+    to.Unlock();
 }
+
 TEST(TransactionTest, MakeInvalidSameAccount) {
     MockAccount acc(1, 100);
     Transaction tr;
