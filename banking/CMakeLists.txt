@@ -4,6 +4,9 @@ project(banking)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Отключаем -Werror для всего проекта
+add_compile_options(-Wno-error)
+
 enable_testing()
 
 add_library(banking
@@ -18,9 +21,17 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.10.0
+  GIT_TAG release-1.12.1  # Обновленная версия
 )
 FetchContent_MakeAvailable(googletest)
+
+# Для googletest отключаем дополнительные флаги ошибок
+if(googletest_POPULATED)
+    set_target_properties(gtest PROPERTIES COMPILE_FLAGS "-w")
+    set_target_properties(gtest_main PROPERTIES COMPILE_FLAGS "-w")
+    set_target_properties(gmock PROPERTIES COMPILE_FLAGS "-w")
+    set_target_properties(gmock_main PROPERTIES COMPILE_FLAGS "-w")
+endif()
 
 add_executable(banking_tests
     test_account.cpp

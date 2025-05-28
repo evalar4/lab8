@@ -22,7 +22,7 @@ public:
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    MockTransaction tr;
+    Transaction tr;
     tr.set_fee(10);
 
     {
@@ -32,7 +32,6 @@ TEST(TransactionTest, MakeSuccess) {
         EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
-        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }

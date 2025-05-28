@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Более новая версия
     steps:
       - uses: actions/checkout@v4
       
@@ -12,8 +12,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake
-          sudo apt-get install -y libgtest-dev libgmock-dev
-
+          
       - name: Build and test
         run: |
           cd banking
@@ -24,7 +23,7 @@ jobs:
           ctest --output-on-failure
 
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Более новая версия
     needs: build-and-test
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +32,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake lcov
-          sudo apt-get install -y libgtest-dev libgmock-dev
           
       - name: Build with coverage
         run: |
