@@ -13,20 +13,29 @@ public:
     MOCK_METHOD(void, Unlock, (), (override));
 };
 
+class MockTransaction : public Transaction {
+public:
+    MOCK_METHOD(void, SaveToDataBase, (Account& from, Account& to, int sum), (override));
+};
+
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    Transaction tr; // Используем обычный Transaction, а не MockTransaction
+    MockTransaction tr;
     tr.set_fee(10);
 
-    // Убираем проверку SaveToDataBase, так как она не нужна для этого теста
+    // Ожидаем вызовы GetBalance внутри SaveToDataBase
+    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90)); // После перевода
+    EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));  // После перевода
+
     {
         ::testing::InSequence seq;
         EXPECT_CALL(from, Lock());
         EXPECT_CALL(to, Lock());
-        EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
+        EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200)); // Перед переводом
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
+        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }
@@ -34,7 +43,6 @@ TEST(TransactionTest, MakeSuccess) {
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
 }
-
 
 TEST(TransactionTest, MakeInvalidSameAccount) {
     MockAccount acc(1, 100);
