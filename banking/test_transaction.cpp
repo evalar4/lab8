@@ -1,3 +1,4 @@
+<test_transaction.cpp>
 #include "Transaction.h"
 #include "Account.h"
 #include <gtest/gtest.h>
@@ -21,7 +22,7 @@ public:
 TEST(TransactionTest, MakeSuccess) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
-    Transaction tr;
+    MockTransaction tr;
     tr.set_fee(10);
 
     {
@@ -31,6 +32,7 @@ TEST(TransactionTest, MakeSuccess) {
         EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
         EXPECT_CALL(from, ChangeBalance(-110));
         EXPECT_CALL(to, ChangeBalance(100));
+        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
         EXPECT_CALL(to, Unlock());
         EXPECT_CALL(from, Unlock());
     }
@@ -38,8 +40,6 @@ TEST(TransactionTest, MakeSuccess) {
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
 }
-
-
 
 TEST(TransactionTest, MakeInvalidSameAccount) {
     MockAccount acc(1, 100);
@@ -65,7 +65,7 @@ TEST(TransactionTest, MakeFeeTooHigh) {
     MockAccount from(1, 200);
     MockAccount to(2, 50);
     Transaction tr;
-    tr.set_fee(60); // Для суммы 100 fee*2 = 120 > 100
+    tr.set_fee(60);
     
     bool result = tr.Make(from, to, 100);
     EXPECT_FALSE(result);
@@ -82,6 +82,7 @@ TEST(TransactionTest, DebitSuccess) {
     TestableTransaction tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
+    EXPECT_CALL(acc, ChangeBalance(-50)).Times(1);
     bool result = tr.Debit(acc, 50);
     EXPECT_TRUE(result);
 }
@@ -91,6 +92,7 @@ TEST(TransactionTest, DebitFail) {
     TestableTransaction tr;
     
     EXPECT_CALL(acc, GetBalance()).WillOnce(testing::Return(100));
+    EXPECT_CALL(acc, ChangeBalance(testing::_)).Times(0);
     bool result = tr.Debit(acc, 150);
     EXPECT_FALSE(result);
 }
@@ -99,17 +101,7 @@ TEST(TransactionTest, Credit) {
     MockAccount acc(1, 100);
     TestableTransaction tr;
     
-    EXPECT_NO_THROW(tr.Credit(acc, 50));
+    EXPECT_CALL(acc, ChangeBalance(50)).Times(1);
+    tr.Credit(acc, 50);
 }
-
-TEST(TransactionTest, SaveToDatabaseMock) {
-    MockAccount from(1, 200);
-    MockAccount to(2, 50);
-    MockTransaction tr;
-    tr.set_fee(10);
-
-    EXPECT_CALL(tr, SaveToDataBase(testing::_, testing::_, testing::_)).Times(1);
-    
-    tr.Make(from, to, 100);
-}
-
+</test_transaction.cpp>
