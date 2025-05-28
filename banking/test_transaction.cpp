@@ -24,21 +24,35 @@ TEST(TransactionTest, MakeSuccess) {
     MockTransaction tr;
     tr.set_fee(10);
 
-    // Ожидаем вызовы GetBalance внутри SaveToDataBase
-    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90)); // После перевода
-    EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));  // После перевода
+    // Устанавливаем ожидания в строгой последовательности
+    ::testing::InSequence seq;
 
-    {
-        ::testing::InSequence seq;
-        EXPECT_CALL(from, Lock());
-        EXPECT_CALL(to, Lock());
-        EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200)); // Перед переводом
-        EXPECT_CALL(from, ChangeBalance(-110));
-        EXPECT_CALL(to, ChangeBalance(100));
-        EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100));
-        EXPECT_CALL(to, Unlock());
-        EXPECT_CALL(from, Unlock());
-    }
+    // Блокировка аккаунтов
+    EXPECT_CALL(from, Lock());
+    EXPECT_CALL(to, Lock());
+    
+    // Проверка баланса перед переводом
+    EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(200));
+    
+    // Изменение балансов
+    EXPECT_CALL(from, ChangeBalance(-110));
+    EXPECT_CALL(to, ChangeBalance(100));
+    
+    // Ожидаем вызов SaveToDataBase
+    EXPECT_CALL(tr, SaveToDataBase(testing::Ref(from), testing::Ref(to), 100))
+        .WillOnce(testing::Invoke([&](Account& from_acc, Account& to_acc, int sum) {
+            // Внутри SaveToDataBase происходят вызовы GetBalance()
+            // Устанавливаем ожидания для этих вызовов
+            EXPECT_CALL(from, GetBalance()).WillOnce(testing::Return(90));
+            EXPECT_CALL(to, GetBalance()).WillOnce(testing::Return(150));
+            
+            // Вызываем реальную реализацию SaveToDataBase
+            static_cast<Transaction&>(tr).SaveToDataBase(from_acc, to_acc, sum);
+        });
+    
+    // Разблокировка аккаунтов
+    EXPECT_CALL(to, Unlock());
+    EXPECT_CALL(from, Unlock());
 
     bool result = tr.Make(from, to, 100);
     EXPECT_TRUE(result);
