@@ -14,7 +14,7 @@ cmake .. -DENABLE_COVERAGE=ON
 make -j$(nproc)
 
 # Run tests
-ctest -V
+ctest --output-on-failure
 
 # Generate coverage data
 lcov --capture --directory . --output-file coverage.info
@@ -31,7 +31,7 @@ lcov --remove coverage.info \
 echo "=== Coverage Summary ==="
 lcov --list coverage.filtered.info
 
-# Generate HTML report for local inspection
+# Generate HTML report
 genhtml coverage.filtered.info --output-directory coverage_report
 
 echo "=== Coverage script completed ==="

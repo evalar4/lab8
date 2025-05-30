@@ -1,3 +1,11 @@
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if(ENABLE_COVERAGE)
+    message(STATUS "Enabling code coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgcov")
+endif()
+
 cmake_minimum_required(VERSION 3.10)
 project(banking)
 
@@ -57,3 +65,7 @@ if(ENABLE_COVERAGE)
     add_compile_options(-fprofile-arcs -ftest-coverage)
     add_link_options(-fprofile-arcs -lgcov)
 endif()
+
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+
