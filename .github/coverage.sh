@@ -1,19 +1,22 @@
 #!/bin/bash
+set -e
 
-set -e  # Прерывание при ошибках
+echo "=== Starting coverage script ==="
 
-# Установка зависимостей
-apt-get update
-apt-get install -y lcov
-
-# Сборка с покрытием
+# Create build directory
 mkdir -p build_coverage
 cd build_coverage
-cmake .. -DENABLE_COVERAGE=ON
-make
-ctest
 
-# Генерация отчета
+# Configure with coverage
+cmake .. -DENABLE_COVERAGE=ON
+
+# Build
+make -j$(nproc)
+
+# Run tests
+ctest -V
+
+# Generate coverage data
 lcov --capture --directory . --output-file coverage.info
 lcov --remove coverage.info \
     '/usr/*' \
@@ -21,11 +24,14 @@ lcov --remove coverage.info \
     '*/googletest/*' \
     '*/formatter_ex_lib/*' \
     '*/solver_lib/*' \
+    '*/build/*' \
     --output-file coverage.filtered.info
 
-# Вывод информации для отладки
-echo "=== Coverage Information ==="
+# Print coverage summary
+echo "=== Coverage Summary ==="
 lcov --list coverage.filtered.info
 
-# Генерация HTML отчета
+# Generate HTML report for local inspection
 genhtml coverage.filtered.info --output-directory coverage_report
+
+echo "=== Coverage script completed ==="
