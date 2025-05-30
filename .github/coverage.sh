@@ -1,26 +1,31 @@
 #!/bin/bash
 
-# Создаем отдельную директорию для сборки с покрытием
+set -e  # Прерывание при ошибках
+
+# Установка зависимостей
+apt-get update
+apt-get install -y lcov
+
+# Сборка с покрытием
 mkdir -p build_coverage
 cd build_coverage
-
-# Конфигурируем CMake с включенным покрытием
 cmake .. -DENABLE_COVERAGE=ON
-
-# Собираем проект
 make
-
-# Запускаем тесты
 ctest
 
-# Генерируем отчет покрытия
+# Генерация отчета
 lcov --capture --directory . --output-file coverage.info
-lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage.filtered.info
+lcov --remove coverage.info \
+    '/usr/*' \
+    '*/tests/*' \
+    '*/googletest/*' \
+    '*/formatter_ex_lib/*' \
+    '*/solver_lib/*' \
+    --output-file coverage.filtered.info
 
-# Генерируем HTML отчет (для локального просмотра)
-genhtml coverage.filtered.info --output-directory coverage_report
-
-# Выводим информацию о покрытии в консоль
+# Вывод информации для отладки
+echo "=== Coverage Information ==="
 lcov --list coverage.filtered.info
 
-
+# Генерация HTML отчета
+genhtml coverage.filtered.info --output-directory coverage_report

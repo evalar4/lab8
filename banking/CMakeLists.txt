@@ -49,3 +49,11 @@ if(ENABLE_COVERAGE)
     # Устанавливаем правильные пути для .gcda файлов
     add_compile_options(-fprofile-dir=$(CMAKE_CURRENT_BINARY_DIR))
 endif()
+
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
+
+if(ENABLE_COVERAGE)
+    # Для GCC/Clang
+    add_compile_options(-fprofile-arcs -ftest-coverage)
+    add_link_options(-fprofile-arcs -lgcov)
+endif()
