@@ -23,10 +23,10 @@ Transaction::Transaction() : fee_(1) {}
 Transaction::~Transaction() {}
 
 bool Transaction::Make(Account& from, Account& to, int sum) {
-  if (from.id() == to.id()) throw std::logic_error("invalid action");
-  if (sum < 0) throw std::invalid_argument("sum can't be negative");
-  if (sum < 100) throw std::logic_error("too small");
-  if (fee_ * 2 > sum) return false;
+    if (from.id() == to.id()) throw std::logic_error("invalid action");
+    if (sum < 0) throw std::invalid_argument("sum can't be negative");
+    if (fee_ * 2 > sum) return false;
+    if (sum < 100) throw std::logic_error("too small");
 
   Guard guard_from(from);
   Guard guard_to(to);
