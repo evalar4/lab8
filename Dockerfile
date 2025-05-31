@@ -23,7 +23,7 @@ RUN pip3 install junit2html
 
 # Создаем рабочую директорию
 WORKDIR /app
-
+COPY . .
 # Команда сборки проекта
 CMD mkdir -p build && \
     cd build && \
