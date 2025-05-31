@@ -12,11 +12,11 @@ RUN apt-get update && \
     libgtest-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Сборка и установка Google Test
+# Сборка и установка Google Test (исправленная версия)
 RUN cd /usr/src/gtest && \
-    cmake CMakeLists.txt && \
+    cmake . && \
     make && \
-    cp *.a /usr/lib
+    cp lib/*.a /usr/lib
 
 # Установка junit2html для отчетов
 RUN pip3 install junit2html
