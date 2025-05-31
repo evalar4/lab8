@@ -20,8 +20,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Run-docker.sh
+    - name: Build-docker
       run: docker build -t project-builder .
+      
+    - name: Run-docker
+      run: docker run --rm -v "$(pwd):/app" project-builder /bin/bash -c "cd /app && ./build.sh"
       
     - name: Upload test results
       uses: actions/upload-artifact@4.6.2
