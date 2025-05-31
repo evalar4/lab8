@@ -20,11 +20,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Make run_docker.sh executable
-      run: chmod +x run_docker.sh
-      
     - name: Run-docker.sh
-      run: ./run_docker.sh
+      run: docker build -t project-builder .
       
     - name: Upload test results
       uses: actions/upload-artifact@4.6.2
