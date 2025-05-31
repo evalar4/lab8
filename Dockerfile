@@ -20,13 +20,10 @@ RUN cd /usr/src/gtest && \
 
 # Установка junit2html
 RUN pip3 install junit2html
-
+WORKDIR /app
 # Копирование скрипта сборки
-COPY build.sh /build.sh
-RUN chmod +x /build.sh
-
-# Рабочая директория
-WORKDIR /workspace
+COPY . /app/
+RUN chmod +x /app/build.sh
 
 # Точка входа
-ENTRYPOINT ["/build.sh"]
+ENTRYPOINT ["/app/build.sh"]
