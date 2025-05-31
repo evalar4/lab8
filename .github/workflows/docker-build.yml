@@ -24,7 +24,7 @@ jobs:
       run: ls
       
     - name: Run-docker.sh
-      run: run_docker.sh
+      run: ./run_docker.sh
       
     - name: Upload test results
       uses: actions/upload-artifact@4.6.2
