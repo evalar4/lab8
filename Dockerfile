@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Установка инструментов сборки
+# Установка зависимостей
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
@@ -21,12 +21,12 @@ RUN cd /usr/src/gtest && \
 # Установка junit2html
 RUN pip3 install junit2html
 
-# Рабочая директория
-WORKDIR /workspace
-
-# Скрипт сборки (будет скопирован)
+# Копирование скрипта сборки
 COPY build.sh /build.sh
 RUN chmod +x /build.sh
+
+# Рабочая директория
+WORKDIR /workspace
 
 # Точка входа
 ENTRYPOINT ["/build.sh"]
