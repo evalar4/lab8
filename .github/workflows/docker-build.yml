@@ -17,6 +17,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: ls
+      run: ls
+      
     - name: Run-docker.sh
       run: ./run_docker.sh
       
